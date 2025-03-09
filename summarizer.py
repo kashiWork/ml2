@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 import requests
-from transformers import PegasusTokenizer, PegasusForConditionalGeneration
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 app = FastAPI()
 
-# Load the Pegasus model and tokenizer.
-model_name = "google/pegasus-xsum"
-tokenizer = PegasusTokenizer.from_pretrained(model_name)
-model = PegasusForConditionalGeneration.from_pretrained(model_name)
+# Use the smaller, pretrained DistilBART model for summarization.
+model_name = "sshleifer/distilbart-cnn-12-6"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 # Function to fetch reviews from your Beeceptor mock server.
 def get_mock_reviews():
@@ -26,10 +26,10 @@ def summarize_reviews():
     if not reviews:
         raise HTTPException(status_code=400, detail="No reviews found.")
     
-    # Tokenize the input text (reviews), limiting to 512 tokens.
+    # Tokenize the reviews, limiting to 512 tokens.
     input_ids = tokenizer.encode(reviews, return_tensors="pt", max_length=512, truncation=True)
     
-    # Generate the summary.
+    # Generate the summary with controlled max length.
     summary_ids = model.generate(input_ids, max_length=50, num_beams=5, early_stopping=True)
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     
