@@ -3,4 +3,3 @@ uvicorn
 transformers
 requests
 torch
-sentencepiece
