@@ -17,6 +17,7 @@ class ReviewPayload(BaseModel):
 def summarize_reviews(payload: ReviewPayload):
     reviews = payload.reviews
     if not reviews:
+        print("No reviews provided in the payload.")
         raise HTTPException(status_code=400, detail="No reviews provided.")
     
     # T5 requires a prompt for summarization.
